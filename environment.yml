@@ -1,6 +1,7 @@
 name: codenerf
 channels:
   - pytorch
+  - nvidia
   - defaults
 dependencies:
   - python>=3.8
@@ -15,6 +16,7 @@ dependencies:
   - numpy
   - matplotlib
   - pytorch
+  - pytorch-cuda=11.8
   - torchvision
   - scikit-image
   - tqdm
