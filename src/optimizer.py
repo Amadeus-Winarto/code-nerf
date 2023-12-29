@@ -135,7 +135,9 @@ class Optimizer:
                     self.nopts + self.num_opts * num_obj,
                     num_obj,
                 )
-                self.log_regloss(reg_loss.item(), self.nopts, num_obj)
+                self.log_regloss(
+                    reg_loss.item(), self.nopts + self.num_opts * num_obj, num_obj
+                )
                 if self.save_img:
                     self.save_img(
                         generated_imgs, gt_imgs, self.ids[num_obj], self.nopts
