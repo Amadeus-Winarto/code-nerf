@@ -11,6 +11,7 @@ from torch.utils.tensorboard import SummaryWriter
 import os
 import imageio
 import time
+from tqdm import trange
 
 
 class Optimizer:
@@ -84,7 +85,9 @@ class Optimizer:
 
             # First Optimize
             self.set_optimizers(shapecode, texturecode)
-            while self.nopts < self.num_opts:
+
+            for nopts in trange(self.num_opts):
+                self.nopts = nopts
                 self.opts.zero_grad()
                 t1 = time.time()
                 generated_imgs, gt_imgs = [], []
@@ -303,7 +306,7 @@ class Optimizer:
         saved_path = os.path.join("exps", saved_dir, "models.pth")
         saved_data = torch.load(saved_path, map_location=torch.device("cpu"))
         self.make_save_img_dir(os.path.join("exps", saved_dir, "test"))
-        self.make_writer(saved_dir)
+        self.make_writer(self.save_dir)
         self.model.load_state_dict(saved_data["model_params"])
         self.model = self.model.to(self.device)
         self.mean_shape = torch.mean(
@@ -314,7 +317,7 @@ class Optimizer:
         ).reshape(1, -1)
 
     def make_writer(self, saved_dir):
-        self.writer = SummaryWriter(os.path.join("exps", saved_dir, "test", "runs"))
+        self.writer = SummaryWriter(os.path.join(saved_dir, "runs"))
 
     def make_save_img_dir(self, save_dir):
         save_dir_tmp = save_dir
