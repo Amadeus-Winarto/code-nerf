@@ -6,7 +6,7 @@ import torch.nn as nn
 import json
 from data import SRN
 from utils import get_rays, sample_from_rays, volume_rendering, image_float_to_uint8
-from model import CodeNeRF
+from model import CodeNeRF, TriplaneCodeNeRF
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 import os
@@ -173,3 +173,18 @@ class Trainer():
         torch.save(save_dict, os.path.join(self.save_dir, 'models.pth'))
 
 
+
+
+class TriplaneTrainer(Trainer): 
+    def make_codes(self):
+        embdim = 3 * self.hpams['net_hyperparams']['latent_dim'] * 128 * 128
+        num_training_scenes = len(self.dataloader)
+        self.shape_codes = nn.Embedding(num_training_scenes, embdim)
+        self.texture_codes = nn.Embedding(num_training_scenes, embdim)
+        self.shape_codes.weight = nn.Parameter(torch.randn(num_training_scenes, embdim) / math.sqrt(embdim/2))
+        self.texture_codes.weight = nn.Parameter(torch.randn(num_training_scenes, embdim) / math.sqrt(embdim/2))
+        self.shape_codes = self.shape_codes.to(self.device)
+        self.texture_codes = self.texture_codes.to(self.device)
+    
+    def make_model(self):
+        self.model = TriplaneCodeNeRF(**self.hpams['net_hyperparams']).to(self.device)
